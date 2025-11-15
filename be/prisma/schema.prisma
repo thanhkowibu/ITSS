@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id        Int       @id @default(autoincrement())
+  name           String
+  nationality    String?
+  email          String    @unique
+  password_hash  String?
+  login_provider String    @default("local")
+  provider_id    String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now())
+
+  // Relations
+  created_groups chat_groups[]         @relation("UserCreatedGroups")
+  sent_messages  messages[]            @relation("UserMessages")
+  group_members  group_members[]
+  message_reads  message_reads[]
+  reviews        message_reviews[]
+  diaries        learning_diaries[]
+  diary_views    diary_views[]
+}
+
+model chat_groups {
+  group_id    Int      @id @default(autoincrement())
+  group_name  String
+  icon_url    String?
+  created_by  Int?     
+  created_at  DateTime @default(now())
+
+  // Relations
+  creator      users?          @relation("UserCreatedGroups", fields: [created_by], references: [user_id], onDelete: SetNull)
+  members      group_members[]
+  messages     messages[]
+}
+
+model group_members {
+  group_id  Int
+  user_id   Int
+  joined_at DateTime @default(now())
+
+  // Relations
+  group chat_groups @relation(fields: [group_id], references: [group_id], onDelete: Cascade)
+  user  users       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([group_id, user_id])
+}
+
+model messages {
+  message_id Int      @id @default(autoincrement())
+  group_id   Int?
+  sender_id  Int?
+  content    String
+  created_at DateTime @default(now())
+
+  // Relations
+  group        chat_groups?      @relation(fields: [group_id], references: [group_id], onDelete: Cascade)
+  sender       users?            @relation("UserMessages", fields: [sender_id], references: [user_id], onDelete: SetNull)
+  reads        message_reads[]
+  analyses     message_analyses[]
+}
+
+model message_reads {
+  message_id Int
+  user_id    Int
+  read_at    DateTime @default(now())
+
+  // Relations
+  message messages @relation(fields: [message_id], references: [message_id], onDelete: Cascade)
+  user    users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([message_id, user_id])
+}
+
+model message_reviews {
+  review_id        Int      @id @default(autoincrement())
+  user_id          Int
+  original_content String
+  suggestion       String?
+  warning_message  String?
+  status           String   @default("checked")
+  reviewed_at      DateTime @default(now())
+
+  // Relations
+  user users @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model message_analyses {
+  analysis_id      Int      @id @default(autoincrement())
+  message_id       Int
+  analyzed_by_ai   Boolean  @default(true)
+  meaning_summary  String?
+  vocab_notes      String?
+  cultural_notes   String?
+  similar_examples String?
+  created_at       DateTime @default(now())
+
+  // Relations
+  message messages @relation(fields: [message_id], references: [message_id], onDelete: Cascade)
+}
+
+model learning_diaries {
+  diary_id         Int      @id @default(autoincrement())
+  user_id          Int
+  title            String?
+  learning_date    DateTime @default(now())
+  situation        String?
+  learning_content String?
+  created_at       DateTime @default(now())
+
+  // Relations
+  user  users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  views diary_views[]
+}
+
+model diary_views {
+  diary_id  Int
+  user_id   Int
+  viewed_at DateTime @default(now())
+
+  // Relations
+  diary learning_diaries @relation(fields: [diary_id], references: [diary_id], onDelete: Cascade)
+  user  users            @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([diary_id, user_id])
+}
