@@ -19,4 +19,22 @@ export class GetChatBoxesResponseDto {
   message?: string;
 }
 
+export class MessageItemDto {
+  message_id: number;
+  content: string;
+  created_at: Date;
+  sender: {
+    user_id: number;
+    name: string;
+    email: string;
+  } | null;
+}
+
+export class GetChatBoxMessagesResponseDto {
+  success: boolean;
+  data: MessageItemDto[];
+  message?: string;
+}
+
+
 

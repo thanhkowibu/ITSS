@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ChatBoxItemDto } from './dto/get-chat-boxes.dto';
+import { ChatBoxItemDto, MessageItemDto } from './dto/get-chat-boxes.dto';
 
 @Injectable()
 export class ChatBoxesService {
@@ -99,6 +99,95 @@ export class ChatBoxesService {
         error instanceof Error ? error.message : 'Unknown error occurred';
       throw new InternalServerErrorException(
         `Failed to retrieve chat boxes: ${errorMessage}`,
+      );
+    }
+  }
+
+  /**
+   * Lấy 40 tin nhắn gần nhất trong một chat-box (group)
+   * @param userId ID của user đang yêu cầu
+   * @param groupId ID của chat group
+   * @returns Mảng 40 tin nhắn gần nhất, sắp xếp từ cũ đến mới
+   */
+  async getChatBoxMessages(userId: number, groupId: number): Promise<MessageItemDto[]> {
+    try {
+      // Validate user exists
+      const user = await this.prisma.users.findUnique({
+        where: { user_id: userId },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      // Validate group exists
+      const group = await this.prisma.chat_groups.findUnique({
+        where: { group_id: groupId },
+      });
+
+      if (!group) {
+        throw new NotFoundException(`Chat group with ID ${groupId} not found`);
+      }
+
+      // Check if user is a member of this group
+      const membership = await this.prisma.group_members.findUnique({
+        where: {
+          group_id_user_id: {
+            group_id: groupId,
+            user_id: userId,
+          },
+        },
+      });
+
+      if (!membership) {
+        throw new ForbiddenException(`User ${userId} is not a member of group ${groupId}`);
+      }
+
+      // Get 40 most recent messages, ordered from oldest to newest
+      const messages = await this.prisma.messages.findMany({
+        where: {
+          group_id: groupId,
+        },
+        include: {
+          sender: {
+            select: {
+              user_id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc', // Lấy tin nhắn mới nhất trước
+        },
+        take: 40, // Lấy 40 tin nhắn
+      });
+
+      // Reverse để sắp xếp từ cũ đến mới (cho hiển thị)
+      const sortedMessages = messages.reverse();
+
+      return sortedMessages.map((message) => ({
+        message_id: message.message_id,
+        content: message.content,
+        created_at: message.created_at,
+        sender: message.sender ? {
+          user_id: message.sender.user_id,
+          name: message.sender.name,
+          email: message.sender.email,
+        } : null,
+      }));
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException ||
+        error instanceof InternalServerErrorException
+      ) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new InternalServerErrorException(
+        `Failed to retrieve chat box messages: ${errorMessage}`,
       );
     }
   }

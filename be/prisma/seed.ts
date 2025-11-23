@@ -16,6 +16,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -37,6 +38,13 @@ async function main() {
 
   // 1. Create Users
   console.log('1️⃣ Creating users...');
+  
+  // Hash passwords properly using bcrypt
+  const password1 = await bcrypt.hash('password123', 10);
+  const password2 = await bcrypt.hash('password123', 10);
+  const password3 = await bcrypt.hash('password123', 10);
+  const password4 = await bcrypt.hash('password123', 10);
+  
   const user1 = await prisma.users.upsert({
     where: { email: 'a.nguyen@example.com' },
     update: {},
@@ -44,7 +52,7 @@ async function main() {
       name: 'Nguyen Van A',
       nationality: 'Vietnam',
       email: 'a.nguyen@example.com',
-      password_hash: 'hashed_pwd_1',
+      password_hash: password1,
       login_provider: 'local',
     },
   });
@@ -56,7 +64,7 @@ async function main() {
       name: 'Tran Thi B',
       nationality: 'Vietnam',
       email: 'b.tran@example.com',
-      password_hash: 'hashed_pwd_2',
+      password_hash: password2,
       login_provider: 'local',
     },
   });
@@ -68,7 +76,7 @@ async function main() {
       name: 'Yamada Taro',
       nationality: 'Japan',
       email: 'taro.yamada@example.jp',
-      password_hash: 'hashed_pwd_3',
+      password_hash: password3,
       login_provider: 'local',
     },
   });
@@ -80,7 +88,7 @@ async function main() {
       name: 'Suzuki Hanako',
       nationality: 'Japan',
       email: 'hanako.suzuki@example.jp',
-      password_hash: 'hashed_pwd_4',
+      password_hash: password4,
       login_provider: 'local',
     },
   });
