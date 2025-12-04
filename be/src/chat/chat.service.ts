@@ -1,12 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { ExplainMessageDto } from './dto/create-explain.dto';
+import { AIService } from '../ai/ai.service';
 
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private aiService: AIService,
+  ) {}
 
   async saveMessage(senderId: number, createMessageDto: CreateMessageDto) {
     const { groupId, content } = createMessageDto;
@@ -72,4 +77,23 @@ export class ChatService {
       throw new Error(`Failed to retrieve messages: ${error.message}`);
     }
   }
+
+  /**
+   * Giải thích tin nhắn bằng AI
+   */
+  async explainMessage(dto: ExplainMessageDto): Promise<string> {
+    this.logger.log(`Explaining message: "${dto.message}"`);
+
+    try {
+      const explanation = await this.aiService.explain(dto.message);
+      this.logger.log(`Explanation generated successfully.`);
+      return explanation;
+    } catch (error) {
+      this.logger.error(
+        `Failed to explain message "${dto.message}". Error: ${error.message}`,
+      );
+      throw new Error(`Failed to explain message: ${error.message}`);
+    }
+  }
+  
 }
