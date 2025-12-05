@@ -11,17 +11,17 @@ const ExplainModal = ({
   return (
     <div
       className="
-        absolute inset-0 
+        fixed inset-0
         backdrop-blur-sm
-        bg-white/10
-        flex items-center justify-center 
+        bg-black/20
+        flex items-center justify-center
         z-50
       "
     >
-      {/* POPUP MAIN BOX */}
+      {/* MAIN POPUP */}
       <div className="relative bg-yellow-100 w-[600px] min-h-[280px] rounded-lg shadow-lg p-6">
 
-        {/* Nút X đóng (hình vuông, X căn giữa) */}
+        {/* Close button */}
         <button
           onClick={onClose}
           className="
@@ -30,39 +30,40 @@ const ExplainModal = ({
             text-white font-bold
             bg-red-500 rounded-md
             hover:bg-red-600 transition
-            leading-none
           "
         >
           ×
         </button>
 
-        {/* Avatar + Tên người gửi */}
+        {/* Avatar + sender name */}
         {sender && (
           <div className="flex items-center gap-3 mb-4">
             <img
               src={
                 sender.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  sender.name
-                )}&background=4F46E5&color=fff`
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(sender.name)}&background=4F46E5&color=fff`
               }
               alt={sender.name}
               className="w-12 h-12 rounded-full border object-cover"
             />
-            <div className="font-semibold text-gray-800 text-lg">
-              {sender.name}
-            </div>
+            <div className="font-semibold text-gray-800 text-lg">{sender.name}</div>
           </div>
         )}
 
-        {/* Tin nhắn gốc */}
+        {/* Original message */}
         <div className="text-sm text-gray-700 border p-3 rounded-md bg-white mb-4">
           <strong className="text-gray-800">原文:</strong>
           <div className="mt-1 whitespace-pre-wrap">{message}</div>
         </div>
 
-        {/* Giải thích AI */}
-        <div className="min-h-[100px] text-sm text-gray-800 bg-white border p-3 rounded-md mb-4">
+        {/* AI Explanation (scrollable) */}
+        <div 
+          className="
+            text-sm text-gray-800 bg-white border p-3 rounded-md mb-4
+            max-h-48
+            overflow-y-auto
+          "
+        >
           {loading ? (
             <div className="text-gray-500">AI が考え中...</div>
           ) : (
@@ -70,7 +71,7 @@ const ExplainModal = ({
           )}
         </div>
 
-        {/* Nút 学習日記に追加 (KHÔNG đè lên UI) */}
+        {/* Save button */}
         <div className="flex justify-end">
           <button
             className="
@@ -82,7 +83,6 @@ const ExplainModal = ({
             学習日記に追加
           </button>
         </div>
-
       </div>
     </div>
   );

@@ -141,10 +141,10 @@ export const chatAPI = {
    * @param {string} message - nội dung tin nhắn cần giải thích
    * @returns {Promise<{ explanation: string }>}
    */
-  explainMessage: async (message) => {
+  explainMessage: async (message_id) => {
     return await apiRequest('/messages/explain', {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message_id }),
     });
   },
 };

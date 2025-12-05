@@ -70,12 +70,14 @@ export class ChatController {
     @Body() dto: ExplainMessageDto,
     @Req() req: authenticatedRequestInterface.AuthenticatedRequest,
   ) {
+    const userId = req.user.user_id;
+
     this.logger.log(
-      `User ${req.user.user_id} requested explanation for message: "${dto.message}"`,
+      `User ${req.user.user_id} requested explanation for message_id: "${dto.message_id}"`,
     );
 
     try {
-      const result = await this.chatService.explainMessage(dto);
+      const result = await this.chatService.explainMessage(dto, userId);
       return { explanation: result };
     } catch (error) {
       this.logger.error(

@@ -36,7 +36,7 @@ const ChatArea = ({ group, messages, currentUser, onSendMessage, loadingMessages
     setExplanation("");
 
     try {
-      const res = await chatAPI.explainMessage(msg.content);
+      const res = await chatAPI.explainMessage(messageId);
 
       // Lưu cache
       setExplainCache((prev) => ({

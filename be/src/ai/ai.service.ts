@@ -19,10 +19,12 @@ export class AIService {
       const body = {
         contents: [
           {
-            parts: [{ text: `Giải thích ngắn gọn: "${message}"` }]
+            parts: [{ text: `"${message}"` }]
           }
         ]
       };
+
+      this.logger.log(`Prompt sent to Gemini model "${model}": ${message}`);
 
       const response = await firstValueFrom(this.http.post(url, body));
       return this.extractText(response.data) || 'Không có nội dung trả về.';
