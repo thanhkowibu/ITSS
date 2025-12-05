@@ -135,3 +135,16 @@ export const chatBoxesAPI = {
   },
 };
 
+export const chatAPI = {
+  /**
+   * Gửi tin nhắn và nhận lại phần giải thích từ AI
+   * @param {string} message - nội dung tin nhắn cần giải thích
+   * @returns {Promise<{ explanation: string }>}
+   */
+  explainMessage: async (message) => {
+    return await apiRequest('/messages/explain', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+  },
+};

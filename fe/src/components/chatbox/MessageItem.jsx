@@ -1,11 +1,10 @@
 import { useState } from "react";
 
-const MessageItem = ({ message, isOwnMessage }) => {
-  const [showAnalysis, setShowAnalysis] = useState(false);
-
+const MessageItem = ({ message, isOwnMessage, onExplain }) => {
   const handleAnalysisClick = () => {
-    setShowAnalysis(!showAnalysis);
-    alert("Chức năng đang phát triển" + "\n" + "Sẽ được thêm ở sprint sau");
+    if (onExplain) {
+      onExplain(message);
+    }
   };
 
   const formatTime = (date) => {
