@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Query, UseGuards, Req, ParseIntPipe, DefaultValuePipe, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, UseGuards, Req, ParseIntPipe, DefaultValuePipe, Logger, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/auth.guard'; // Guard HTTP của bạn
 import { ChatService } from './chat.service';
 import * as authenticatedRequestInterface from '../common/interface/authenticated-request.interface';
+import { ExplainMessageDto } from './dto/create-explain.dto';
 
 @UseGuards(JwtAuthGuard) // Bảo vệ tất cả các route trong controller này
 @Controller('messages') // Endpoint base cho API tin nhắn
@@ -56,6 +57,32 @@ export class ChatController {
       return messages;
     } catch (error) {
       this.logger.error(`Error getting general messages for user ${req.user.user_id}: ${error.message}`);
+      throw error;
+    }
+  }
+
+    /**
+   * API để giải thích một tin nhắn bằng AI.
+   * POST /messages/explain
+   */
+  @Post('explain')
+  async explainMessage(
+    @Body() dto: ExplainMessageDto,
+    @Req() req: authenticatedRequestInterface.AuthenticatedRequest,
+  ) {
+    const userId = req.user.user_id;
+
+    this.logger.log(
+      `User ${req.user.user_id} requested explanation for message_id: "${dto.message_id}"`,
+    );
+
+    try {
+      const result = await this.chatService.explainMessage(dto, userId);
+      return { explanation: result };
+    } catch (error) {
+      this.logger.error(
+        `Error explaining message for user ${req.user.user_id}: ${error.message}`,
+      );
       throw error;
     }
   }

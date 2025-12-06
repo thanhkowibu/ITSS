@@ -1,12 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { ExplainMessageDto } from './dto/create-explain.dto';
+import { AIService } from '../ai/ai.service';
 
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private aiService: AIService,
+  ) {}
 
   async saveMessage(senderId: number, createMessageDto: CreateMessageDto) {
     const { groupId, content } = createMessageDto;
@@ -72,4 +77,104 @@ export class ChatService {
       throw new Error(`Failed to retrieve messages: ${error.message}`);
     }
   }
+
+  /**
+   * Giải thích tin nhắn bằng AI
+   */
+  async explainMessage(dto: ExplainMessageDto, userId: number): Promise<string> {
+    const messageId = dto.message_id;
+
+    this.logger.log(`Explaining message_id = ${messageId}`);
+
+    try {
+      // 1. Lấy message chính
+      const mainMessage = await this.prisma.messages.findUnique({
+        where: { message_id: messageId },
+        include: { sender: true }, // để lấy sender.name
+      });
+
+      if (!mainMessage) {
+        throw new NotFoundException(`Message ${messageId} not found`);
+      }
+
+      const groupId = mainMessage.group_id;
+
+      // 2. Lấy 15 message trước đó (theo thời gian)
+      const previousMessages = await this.prisma.messages.findMany({
+        where: {
+          group_id: groupId,
+          created_at: { lt: mainMessage.created_at },
+        },
+        orderBy: { created_at: 'desc' },
+        take: 15,
+        include: { sender: true },
+      });
+
+      // Đảo thứ tự từ cũ → mới cho đúng timeline
+      const orderedContext = previousMessages.reverse();
+
+      // 3. Lấy nationality của user
+      const user = await this.prisma.users.findUnique({
+        where: { user_id: userId },
+      });
+
+      const nationality = user?.nationality || 'unknown';
+
+      // 4. Tạo context sạch đẹp
+      const contextText = orderedContext
+        .map((msg) => {
+          const name = msg.sender?.name ?? `User${msg.sender_id}`;
+          const time = msg.created_at.toISOString();
+          return `[${name} - ${time}]: ${msg.content}`;
+        })
+        .join('\n');
+
+      const mainMessageText = mainMessage.content;
+
+      // 5. Tạo prompt gửi sang AI
+      const finalPrompt = `
+User nationality: ${nationality}
+
+Below is the conversation context (15 previous messages):
+${contextText || '[No previous messages]'}
+
+The message that needs explanation:
+"${mainMessageText}"
+
+Task:
+Explain the message ABOVE in the user's native language and provide a short, learning-oriented breakdown. Keep all parts concise. Be sure to identify the true intent of the message. Sometime, the literal meaning may differ from the intended meaning. Like a flirt, joke, or express one's feelings.
+
+Your output MUST include:
+
+1. A short explanation of the main meaning of the sentence.
+
+2. Key language points used in the sentence, including vocabulary meaning and usage, grammar or structure, emotional nuance or politeness level, and any relevant cultural notes. Keep each point brief, written as normal sentences (no bullet marks).
+
+3. A few equivalent expressions that convey a similar meaning, written in short form.
+
+4. A few short example sentences showing how the expression can be used in other contexts.
+
+IMPORTANT:
+- Do NOT translate the entire conversation context; only use it to understand nuance.
+- The explanation MUST be written naturally in the user's native language (${nationality}).
+- Keep the explanation friendly, clear, and concise for language learners.
+- You must write the explanation in natural language, do not add bullet points or markdown or any special icons.
+
+  `;
+
+      // 6. Gửi sang Google Studio AI qua AIService
+      const explanation = await this.aiService.explain(finalPrompt);
+
+      this.logger.log(`Explain done for message_id = ${messageId}`);
+
+      return explanation;
+    } catch (error) {
+      this.logger.error(
+        `Failed to explain message ${dto.message_id}: ${error.message}`,
+      );
+      throw new Error(`Failed to explain message: ${error.message}`);
+    }
+  }
+
+  
 }

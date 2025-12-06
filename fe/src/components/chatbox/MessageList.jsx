@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
 
-const MessageList = ({ messages, currentUser }) => {
+const MessageList = ({ messages, currentUser, onExplain }) => {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -33,6 +33,7 @@ const MessageList = ({ messages, currentUser }) => {
             key={message.message_id}
             message={message}
             isOwnMessage={message.sender?.user_id === currentUser.user_id}
+            onExplain={onExplain}
           />
         ))}
         <div ref={messagesEndRef} />
