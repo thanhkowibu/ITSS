@@ -23,21 +23,24 @@ const MainLayout = ({ children }) => {
     );
   }
 
-  // Pass currentUser to children if they need it
-  const childrenWithProps = typeof children === 'object' && children !== null
-    ? cloneElement(children, { currentUser })
-    : children;
+  const childrenWithProps =
+    typeof children === "object" && children !== null
+      ? cloneElement(children, { currentUser })
+      : children;
 
   return (
     <div className="w-full h-screen flex flex-col bg-gray-50">
       <ChatHeader currentUser={currentUser} />
+
       <div className="flex-1 flex overflow-hidden">
         <SidebarNavigation />
-        {childrenWithProps}
+
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+          {childrenWithProps}
+        </div>
       </div>
     </div>
   );
 };
 
 export default MainLayout;
-
