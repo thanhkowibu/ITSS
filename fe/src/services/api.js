@@ -148,3 +148,32 @@ export const chatAPI = {
     });
   },
 };
+
+/**
+ * Users API (search)
+ */
+export const usersAPI = {
+  /**
+   * Search users by name/email
+   * @param {string} q
+   */
+  searchUsers: async (q) => {
+    return await apiRequest(`/api/users?q=${encodeURIComponent(q)}`, { method: 'GET' });
+  },
+};
+
+/**
+ * Groups API
+ */
+export const groupsAPI = {
+  /**
+   * Create a new group
+   * @param {{group_name:string, member_ids:number[]}} payload
+   */
+  createGroup: async (payload) => {
+    return await apiRequest('/api/groups', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};

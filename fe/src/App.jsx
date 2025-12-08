@@ -1,6 +1,7 @@
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import MainLayout from "./components/chatbox/MainLayout";
 import GroupListDashboard from "./components/chatbox/GroupListDashboard";
+import CreateGroup from "./components/chatbox/CreateGroup";
 import ChatInterface from "./components/chatbox/ChatInterface";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
@@ -34,6 +35,18 @@ function AppContent() {
           isAuthenticated ? (
             <MainLayout>
               <GroupListDashboard />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route
+        path="/chatbox/create-group"
+        element={
+          isAuthenticated ? (
+            <MainLayout>
+              <CreateGroup />
             </MainLayout>
           ) : (
             <Navigate to="/login" replace />
