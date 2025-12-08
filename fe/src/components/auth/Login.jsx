@@ -19,7 +19,7 @@ const Login = () => {
     try {
       // Call AuthContext.login which handles token storage and profile fetch
       await login({ email, password });
-      navigate("/chatbox");
+      navigate("/chatbox/groups");
     } catch (err) {
       setError(
         err?.response?.data?.message ||
