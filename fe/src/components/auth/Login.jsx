@@ -53,58 +53,64 @@ const Login = () => {
 
           {/* Right Form Side */}
           <div className="flex-1 p-10 md:p-[40px_50px] flex flex-col justify-center">
-            <h2 className="text-[26px] text-primary font-bold mb-2">MAJIWAKARUへようこそ</h2>
-            <p className="text-base text-gray-800 font-bold mb-8">メールでログイン</p>
+  <h2 className="text-[26px] text-primary font-bold mb-2 text-center">
+    MAJIWAKARUへようこそ
+  </h2>
+  <p className="text-base text-gray-800 font-bold mb-8 text-center">
+    メールでログイン
+  </p>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4 text-left">
-                <label className="block mb-1.5 font-semibold text-sm text-gray-800">メール</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] transition-all focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+  <form onSubmit={handleSubmit}>
+    <div className="mb-4 text-left">
+      <label className="block mb-1.5 font-semibold text-sm text-gray-800">メール</label>
+      <input
+        type="email"
+        name="email"
+        className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] transition-all focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
+        placeholder="example@email.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+    </div>
 
-              <div className="mb-4 text-left">
-                <label className="block mb-1.5 font-semibold text-sm text-gray-800">パスワード</label>
-                <input
-                  type="password"
-                  name="password"
-                  className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] transition-all focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
-                  placeholder="●●●●●●●●"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+    <div className="mb-4 text-left">
+      <label className="block mb-1.5 font-semibold text-sm text-gray-800">パスワード</label>
+      <input
+        type="password"
+        name="password"
+        className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] transition-all focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
+        placeholder="●●●●●●●●"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+    </div>
 
-              {error && <p className="text-red-500 text-xs mb-4 ml-2">{error}</p>}
+    {error && <p className="text-red-500 text-xs mb-4 ml-2">{error}</p>}
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-sky-500 text-white p-3.5 rounded-md font-bold text-base mt-2 mb-5 hover:bg-sky-600 transition-colors disabled:opacity-70"
-              >
-                {isLoading ? "処理中..." : "ログイン"}
-              </button>
-            </form>
+    <button
+      type="submit"
+      disabled={isLoading}
+      className="w-1/2 mx-auto bg-sky-500 text-white p-2.5 rounded-md font-bold text-sm mt-2 mb-5 hover:bg-sky-600 transition-colors disabled:opacity-70 block"
+    >
+      {isLoading ? "処理中..." : "ログイン"}
+    </button>
+  </form>
 
-            <div className="text-sm text-gray-800 text-center border-t border-gray-200 pt-5 mt-2">
-              アカウントをお持ちでない方 /
-              <button
-                type="button"
-                onClick={() => navigate("/signup")}
-                className="text-sky-600 font-bold ml-1 hover:underline"
-              >
-                サインアップ
-              </button>
-            </div>
-          </div>
+  <div className="text-sm text-gray-800 text-center border-t border-gray-200 pt-5 mt-2">
+    アカウントをお持ちでない方 /
+    <button
+      type="button"
+      onClick={() => navigate("/signup")}
+      className="text-sky-600 font-bold ml-1 hover:underline"
+    >
+      サインアップ
+    </button>
+  </div>
+</div>
+
+       
         </div>
       </div>
     </div>

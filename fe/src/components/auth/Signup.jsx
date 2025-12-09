@@ -66,6 +66,21 @@ const Signup = () => {
                 />
               </div>
 
+              {/* Email */}
+              <div className="mb-4">
+                <label className="block mb-1.5 font-semibold text-sm text-gray-800">メール</label>
+                <input
+                  type="email"
+                  name="email"
+                  className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+            
               {/* Nationality */}
               <div className="mb-4">
                 <label className="block mb-1.5 font-semibold text-sm text-gray-800">国籍</label>
@@ -80,19 +95,6 @@ const Signup = () => {
                 </select>
               </div>
 
-              {/* Email */}
-              <div className="mb-4">
-                <label className="block mb-1.5 font-semibold text-sm text-gray-800">メール</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="w-full p-3.5 border border-transparent rounded-full bg-sky-50 text-[15px] focus:border-sky-400 focus:outline-none placeholder:text-gray-400"
-                  placeholder="email@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
 
               {/* Password */}
               <div className="mb-4">
